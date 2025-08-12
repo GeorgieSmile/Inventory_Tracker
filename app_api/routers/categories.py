@@ -18,7 +18,7 @@ def create_category(category: request_models.CategoryCreate, db: db_dependency):
     """
     db_category = db.query(sqlalchemy_models.CategoryDB).filter(sqlalchemy_models.CategoryDB.name == category.name).first()
     if db_category:
-        raise HTTPException(status_code=400, detail="Category with this name already exists")
+        raise HTTPException(status_code=400, detail="มี Category นี้อยู่แล้ว")
     
     new_category = sqlalchemy_models.CategoryDB(name=category.name)
     db.add(new_category)
@@ -33,7 +33,7 @@ def get_all_categories(db: db_dependency):
     """
     categories = db.query(sqlalchemy_models.CategoryDB).order_by(sqlalchemy_models.CategoryDB.category_id).all()
     if not categories:
-        raise HTTPException(status_code=404, detail="No categories found")
+        raise HTTPException(status_code=404, detail="ไม่พบ Category")
     
     return categories
 
@@ -45,8 +45,8 @@ def get_category_by_id(category_id: int, db: db_dependency):
     db_category = db.query(sqlalchemy_models.CategoryDB).filter(sqlalchemy_models.CategoryDB.category_id == category_id).first()
     
     if db_category is None:
-        raise HTTPException(status_code=404, detail="Category not found")
-        
+        raise HTTPException(status_code=404, detail="ไม่พบ Category ที่ต้องการ")
+
     return db_category
 
 @router.put("/{category_id}", response_model=response_models.Category)
@@ -57,12 +57,12 @@ def update_category(category_id: int, category_update: request_models.CategoryCr
     db_category = db.query(sqlalchemy_models.CategoryDB).filter(sqlalchemy_models.CategoryDB.category_id == category_id).first()
 
     if db_category is None:
-        raise HTTPException(status_code=404, detail="Category not found")
+        raise HTTPException(status_code=404, detail="ไม่พบ Category ที่ต้องการแก้ไข")
 
     # Check if the new name is already taken by another category
     existing_category_with_name = db.query(sqlalchemy_models.CategoryDB).filter(sqlalchemy_models.CategoryDB.name == category_update.name).first()
     if existing_category_with_name and existing_category_with_name.category_id != category_id:
-        raise HTTPException(status_code=400, detail="Another category with this name already exists")
+        raise HTTPException(status_code=400, detail="มี Category นี้อยู่แล้ว")
 
     db_category.name = category_update.name
     db.commit()
@@ -77,9 +77,9 @@ def delete_category(category_id: int, db: db_dependency):
     db_category = db.query(sqlalchemy_models.CategoryDB).filter(sqlalchemy_models.CategoryDB.category_id == category_id).first()
 
     if db_category is None:
-        raise HTTPException(status_code=404, detail="Category not found")
-    
+        raise HTTPException(status_code=404, detail="ไม่พบ Category ที่ต้องการ")
+
     db.delete(db_category)
     db.commit()
 
-    return {"detail": f"Category {db_category.name} deleted successfully"}
+    return {"detail": f"Category {db_category.name} ถูกลบเรียบร้อยแล้ว"}
