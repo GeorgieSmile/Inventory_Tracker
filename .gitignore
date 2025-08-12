@@ -9,3 +9,5 @@ venv/
 
 # Test folder
 test_api/
+
+pytest.ini
