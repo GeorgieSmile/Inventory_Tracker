@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
 
@@ -11,6 +11,13 @@ class ProductCreate(BaseModel):
     sku: Optional[str] = None
     price: float
     reorder_level: int = 10
+
+class ProductUpdate(BaseModel):
+    name: Optional[str] = Field(None, min_length=1, max_length=150)
+    category_id: Optional[int] = None
+    sku: Optional[str] = Field(None, max_length=64)
+    price: Optional[float] = Field(None, gt=0)
+    reorder_level: Optional[int] = None
 
 class SaleItemCreate(BaseModel):
     product_id: int

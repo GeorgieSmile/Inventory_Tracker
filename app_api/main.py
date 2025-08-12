@@ -1,12 +1,15 @@
 from fastapi import FastAPI
-from database import engine
-from routers import categories
+from database import Base, engine
+from routers import categories, products
 
 app = FastAPI()
 
 app.include_router(categories.router)
+app.include_router(products.router)
 
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the Inventory and Sales API"}
 
+
+    

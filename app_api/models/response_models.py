@@ -12,7 +12,7 @@ class Category(BaseModel):
 class Product(BaseModel):
     product_id: int                    
     name: str                          
-    category_id: Optional[int] = None  # Can be NULL in database
+    category: Optional[Category] = None  # Can be NULL in database
     sku: Optional[str] = None          # Can be NULL in database
     price: float                       
     reorder_level: int                 

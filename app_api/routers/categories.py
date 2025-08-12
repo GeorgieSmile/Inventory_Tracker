@@ -77,7 +77,7 @@ def delete_category(category_id: int, db: db_dependency):
     db_category = db.query(sqlalchemy_models.CategoryDB).filter(sqlalchemy_models.CategoryDB.category_id == category_id).first()
 
     if db_category is None:
-        raise HTTPException(status_code=404, detail="ไม่พบหมวดหมู่ที่ต้องการ")
+        raise HTTPException(status_code=404, detail="ไม่พบหมวดหมู่ที่ต้องการลบ")
 
     db.delete(db_category)
     db.commit()
