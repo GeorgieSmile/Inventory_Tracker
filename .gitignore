@@ -6,3 +6,6 @@ __pycache__/
 # Virtual environment
 venv/
 .venv/
+
+# Test folder
+test_api/
