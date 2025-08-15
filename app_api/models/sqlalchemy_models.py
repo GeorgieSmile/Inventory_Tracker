@@ -115,3 +115,19 @@ class ProductStockView(Base):
     reorder_level = Column(Integer)
     stock_on_hand = Column(Integer)
     needs_restock = Column(Integer)  # 0 or 1
+
+class ProfitabilityReportView(Base):
+    __tablename__ = "v_profitability_report"
+    
+    sale_item_id = Column(Integer, primary_key=True)
+    sale_id = Column(Integer)
+    sale_datetime = Column(DateTime)
+    product_id = Column(Integer)
+    product_name = Column(String(150))
+    quantity = Column(Integer)
+    unit_price = Column(DECIMAL(10, 2))
+    discount = Column(DECIMAL(10, 2))
+    total_revenue = Column(DECIMAL(22, 4))
+    average_cost_at_sale = Column(DECIMAL(22, 4))
+    total_cogs = Column(DECIMAL(22, 4))
+    gross_profit = Column(DECIMAL(22, 4))

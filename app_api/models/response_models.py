@@ -83,7 +83,24 @@ class ProductStock(BaseModel):
     price: float              
     reorder_level: int        
     stock_on_hand: int        
-    needs_restock: int        
+    needs_restock: bool        
     
+    class Config:
+        from_attributes = True
+
+class ProfitabilityReport(BaseModel):
+    sale_item_id: int
+    sale_id: int
+    sale_datetime: datetime
+    product_id: int
+    product_name: str
+    quantity: int
+    unit_price: float
+    discount: float
+    total_revenue: float
+    average_cost_at_sale: float
+    total_cogs: float
+    gross_profit: float
+
     class Config:
         from_attributes = True

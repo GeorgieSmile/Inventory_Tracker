@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from database import Base, engine
-from routers import categories, products, stocks,sales,inventories
+from routers import categories, products, stocks, sales, inventories, report
 
 app = FastAPI()
 
@@ -9,6 +9,7 @@ app.include_router(products.router)
 app.include_router(stocks.router)
 app.include_router(sales.router)
 app.include_router(inventories.router)
+app.include_router(report.router)
 
 @app.get("/")
 def read_root():
