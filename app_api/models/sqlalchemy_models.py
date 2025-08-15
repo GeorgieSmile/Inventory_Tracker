@@ -97,6 +97,7 @@ class InventoryMovementDB(Base):
     movement_type = Column(Enum('OPENING', 'STOCK_IN', 'SALE', 'ADJUSTMENT'), nullable=False)
     quantity = Column(Integer, nullable=False)
     unit_cost = Column(DECIMAL(10, 2), nullable=True)
+    sale_price = Column(DECIMAL(10, 2), nullable=True)
     sale_item_id = Column(Integer, ForeignKey("sale_item.sale_item_id"), nullable=True)
     stock_in_item_id = Column(Integer, ForeignKey("stock_in_item.stock_in_item_id"), nullable=True)
     movement_date = Column(DateTime, nullable=False, default=func.current_timestamp())

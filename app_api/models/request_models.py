@@ -62,3 +62,6 @@ class StockInItemUpdate(BaseModel):
     product_id: Optional[int] = None
     quantity: Optional[int] = Field(None, gt=0)
     unit_cost: Optional[float] = Field(None, gt=0)
+
+class InventoryMovementUpdate(BaseModel):
+    movement_type: str = None

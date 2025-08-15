@@ -69,6 +69,7 @@ class InventoryMovement(BaseModel):
     movement_type: str                       
     quantity: int                            
     unit_cost: Optional[float] = None        # Can be NULL (for sales)
+    sale_price: Optional[float] = None       # Can be NULL (for stock in)
     sale_item_id: Optional[int] = None       # Can be NULL
     stock_in_item_id: Optional[int] = None   # Can be NULL
     movement_date: datetime                  
