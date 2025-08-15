@@ -31,6 +31,17 @@ class SaleCreate(BaseModel):
     notes: Optional[str] = None
     items: List[SaleItemCreate]
 
+class SaleUpdate(BaseModel):
+    sale_datetime: Optional[datetime] = None
+    payment_method: Optional[str] = Field(None, regex="^(Cash|Card|QR)$")
+    notes: Optional[str] = Field(None, max_length=255)
+
+class SaleItemUpdate(BaseModel):
+    product_id: Optional[int] = None
+    quantity: Optional[int] = Field(None, gt=0)
+    unit_price: Optional[float] = Field(None, gt=0)
+    discount: Optional[float] = Field(None, ge=0)
+
 class StockInItemCreate(BaseModel):
     product_id: int
     quantity: int
