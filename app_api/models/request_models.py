@@ -52,3 +52,13 @@ class StockInCreate(BaseModel):
     ref_no: Optional[str] = None
     notes: Optional[str] = None
     items: List[StockInItemCreate]
+
+class StockInUpdate(BaseModel):
+    ref_no: Optional[str] = Field(None, max_length=80)
+    stock_in_date: Optional[datetime] = None
+    notes: Optional[str] = Field(None, max_length=255)
+
+class StockInItemUpdate(BaseModel):
+    product_id: Optional[int] = None
+    quantity: Optional[int] = Field(None, gt=0)
+    unit_cost: Optional[float] = Field(None, gt=0)
