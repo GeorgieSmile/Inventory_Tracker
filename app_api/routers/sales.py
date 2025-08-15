@@ -15,6 +15,8 @@ def create_sale(sale: request_models.SaleCreate, db: db_dependency):
     Create a new sale with multiple items.
     The total_amount is calculated by a database trigger.
     """
+
+    sale.payment_method = sale.payment_method.capitalize()
     if sale.payment_method not in ['Cash', 'Card', 'QR']:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="วิธีการชำระเงินไม่ถูกต้อง")
     # Create the sale record first, excluding items for now
