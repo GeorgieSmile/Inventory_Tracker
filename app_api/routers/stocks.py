@@ -103,14 +103,12 @@ def delete_stock_in(stock_in_id: int, db: db_dependency):
     ).first()
     if stock_in is None:
         raise HTTPException(status_code=404, detail="ไม่พบรายการสินค้าเข้าที่ต้องการลบ")
-    
-    ref_display = stock_in.ref_no or f"ID {stock_in_id}"
-    
+        
     # Due to CASCADE DELETE, stock_in_items will be automatically deleted
     db.delete(stock_in)
     db.commit()
     
-    return {"detail": f"รายการสินค้าเข้า {ref_display} ถูกลบเรียบร้อยแล้ว"}
+    return {"detail": f"รายการสินค้าเข้า ID: {stock_in_id} และรายการสินค้าเข้าที่เกี่ยวข้องถูกลบเรียบร้อยแล้ว"}
 
 # Stock In Items endpoints
 @router.get("/{stock_in_id}/items", response_model=List[response_models.StockInItem])
@@ -234,4 +232,4 @@ def delete_stock_in_item(stock_in_id: int, item_id: int, db: db_dependency):
     # Database trigger will recalculate total_cost automatically
     db.commit()
     
-    return {"detail": f"รายการสินค้า ID {item_id} ถูกลบออกจากการนำเข้าเรียบร้อยแล้ว"}
+    return {"detail": f"รายการสินค้า ID {item_id} ถูกลบออกจากการนำเข้า ID {stock_in_id}เรียบร้อยแล้ว"}
