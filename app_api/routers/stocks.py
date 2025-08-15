@@ -184,7 +184,7 @@ def update_stock_in_item(stock_in_id: int, item_id: int, item_update: request_mo
         raise HTTPException(status_code=404, detail="ไม่พบรายการสินค้าในการนำเข้า")
     
     # If product_id is being updated, validate it exists and not duplicate
-    if item_update.product_id is not None:
+    if item_update.product_id is not None and item_update.product_id != stock_in_item.product_id:
         product = db.query(sqlalchemy_models.ProductDB).filter(
             sqlalchemy_models.ProductDB.product_id == item_update.product_id
         ).first()
