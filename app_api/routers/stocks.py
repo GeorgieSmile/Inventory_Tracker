@@ -111,7 +111,7 @@ def delete_stock_in(stock_in_id: int, db: db_dependency):
     return {"detail": f"รายการสินค้าเข้า ID: {stock_in_id} และรายการสินค้าเข้าที่เกี่ยวข้องถูกลบเรียบร้อยแล้ว"}
 
 # Stock In Items endpoints
-@router.get("/{stock_in_id}/items", response_model=List[response_models.StockInItem])
+@router.get("/items/{stock_in_item_id}", response_model=response_models.StockInItem)
 def get_stock_in_items(stock_in_item_id: int, db: db_dependency):
     """
     Retrieve specific item in stock in record.
@@ -125,7 +125,7 @@ def get_stock_in_items(stock_in_item_id: int, db: db_dependency):
     
     items = db.query(sqlalchemy_models.StockInItemDB).filter(
         sqlalchemy_models.StockInItemDB.stock_in_item_id == stock_in_item_id
-    ).all()
+    ).first()
     return items
 
 @router.post("/{stock_in_id}/items", response_model=response_models.StockInItem, status_code=status.HTTP_201_CREATED)
