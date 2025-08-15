@@ -22,7 +22,7 @@ class ProductUpdate(BaseModel):
 class SaleItemCreate(BaseModel):
     product_id: int
     quantity: int
-    unit_price: float
+    unit_price: Optional[float] = None
     discount: float = 0
 
 class SaleCreate(BaseModel):

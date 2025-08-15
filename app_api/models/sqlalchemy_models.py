@@ -38,7 +38,12 @@ class SaleDB(Base):
     notes = Column(String(255), nullable=True)
     
     # Relationship
-    items = relationship("SaleItemDB", back_populates="sale")
+    items = relationship(
+        "SaleItemDB", 
+        back_populates="sale",
+        cascade="all, delete-orphan",  
+        passive_deletes=True
+        )
 
 class SaleItemDB(Base):
     __tablename__ = "sale_item"
