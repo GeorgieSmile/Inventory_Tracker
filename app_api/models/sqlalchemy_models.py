@@ -64,7 +64,12 @@ class StockInDB(Base):
     notes = Column(String(255), nullable=True)
     
     # Relationship
-    items = relationship("StockInItemDB", back_populates="stock_in")
+    items = relationship(
+        "StockInItemDB", 
+        back_populates="stock_in",
+        cascade="all, delete-orphan",  
+        passive_deletes=True 
+    )
 
 class StockInItemDB(Base):
     __tablename__ = "stock_in_item"

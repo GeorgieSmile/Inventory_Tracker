@@ -33,7 +33,7 @@ class SaleCreate(BaseModel):
 
 class SaleUpdate(BaseModel):
     sale_datetime: Optional[datetime] = None
-    payment_method: Optional[str] = Field(None, regex="^(Cash|Card|QR)$")
+    payment_method: Optional[str] = Field(None, pattern="^(Cash|Card|QR)$")
     notes: Optional[str] = Field(None, max_length=255)
 
 class SaleItemUpdate(BaseModel):
