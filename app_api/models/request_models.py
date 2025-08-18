@@ -92,3 +92,13 @@ class InventoryMovementSearchParams(PaginationParams):
     movement_type: Optional[str] = Field(None, description="Filter by movement type (OPENING, STOCK_IN, SALE)")
     start_date: Optional[str] = Field(None, description="Start date (YYYY-MM-DD)")
     end_date: Optional[str] = Field(None, description="End date (YYYY-MM-DD)")
+
+class ProductStockSearchParams(PaginationParams):
+    search: Optional[str] = Field(default=None, description="Search in product name")
+    productFilter: Optional[str] = Field(default=None, description="Filter products 1. All product (Leave Blank) 2. Needs Restock products ('r') 3. Does not need restock ('nr')")
+
+class ProfitabilityReportSearchParams(PaginationParams):
+    search: Optional[str] = Field(default=None, description="Search in product name")
+    product_id: Optional[int] = Field(default=None, description="Filter by specific product ID")
+    start_date: Optional[str] = Field(default=None, description="Start date (YYYY-MM-DD)")
+    end_date: Optional[str] = Field(default=None, description="End date (YYYY-MM-DD)")
