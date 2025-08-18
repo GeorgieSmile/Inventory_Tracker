@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Generic, TypeVar
 from datetime import datetime
 
 class Category(BaseModel):
@@ -104,3 +104,14 @@ class ProfitabilityReport(BaseModel):
 
     class Config:
         from_attributes = True
+
+T = TypeVar('T')
+
+class PaginatedResponse(BaseModel, Generic[T]):
+    items: List[T]
+    total: int
+    page: int
+    limit: int
+    total_pages: int
+    has_next: bool
+    has_prev: bool

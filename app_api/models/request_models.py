@@ -65,3 +65,24 @@ class StockInItemUpdate(BaseModel):
 
 class InventoryMovementUpdate(BaseModel):
     movement_type: str = None
+
+class PaginationParams(BaseModel):
+    page: int = Field(default=1, ge=1, description="Page number (starts from 1)")
+    limit: int = Field(default=10, ge=1, le=100, description="Items per page (max 100)")
+    
+class ProductSearchParams(PaginationParams):
+    search: Optional[str] = Field(default=None, description="Search in product name or SKU")
+    category_id: Optional[int] = Field(default=None, description="Filter by category ID")
+    min_price: Optional[float] = Field(default=None, ge=0, description="Minimum price filter")
+    max_price: Optional[float] = Field(default=None, ge=0, description="Maximum price filter")
+
+class SaleSearchParams(PaginationParams):
+    search: Optional[str] = Field(default=None, description="Search in customer name or notes")
+    payment_method: Optional[str] = Field(default=None, description="Filter by payment method")
+    start_date: Optional[str] = Field(default=None, description="Start date (YYYY-MM-DD)")
+    end_date: Optional[str] = Field(default=None, description="End date (YYYY-MM-DD)")
+
+class StockInSearchParams(PaginationParams):
+    search: Optional[str] = Field(default=None, description="Search in supplier name or notes")
+    start_date: Optional[str] = Field(default=None, description="Start date (YYYY-MM-DD)")
+    end_date: Optional[str] = Field(default=None, description="End date (YYYY-MM-DD)")
