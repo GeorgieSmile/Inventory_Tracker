@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
+from sqlalchemy import or_, and_
 from typing import List
 from database import db_dependency
 from models import sqlalchemy_models, request_models, response_models
@@ -25,15 +26,66 @@ def create_product(product: request_models.ProductCreate, db: db_dependency):
     db.refresh(new_product)
     return new_product
 
-@router.get("/", response_model=List[response_models.Product])
-def get_all_products(db: db_dependency):
+@router.get("/", response_model=response_models.PaginatedResponse[response_models.Product])
+def get_all_products(
+    db: db_dependency,
+    search_params: request_models.ProductSearchParams = Depends()
+):
     """
-    Retrieve all products, sorted by ID.
+    Retrieve all products with pagination and search functionality.
+    
+    - **search**: Search in product name or SKU
+    - **category_id**: Filter by specific category
+    - **min_price/max_price**: Price range filtering
+    - **page**: Page number (starts from 1)
+    - **limit**: Items per page (max 100)
     """
-    products = db.query(sqlalchemy_models.ProductDB).order_by(sqlalchemy_models.ProductDB.product_id).all()
-    if not products:
+    # Build base query
+    query = db.query(sqlalchemy_models.ProductDB)
+    
+    # Apply search filters
+    if search_params.search:
+        search_term = f"%{search_params.search}%"
+        query = query.filter(
+            or_(
+                sqlalchemy_models.ProductDB.name.ilike(search_term),
+                sqlalchemy_models.ProductDB.sku.ilike(search_term)
+            )
+        )
+    
+    if search_params.category_id:
+        query = query.filter(sqlalchemy_models.ProductDB.category_id == search_params.category_id)
+    
+    if search_params.min_price is not None:
+        query = query.filter(sqlalchemy_models.ProductDB.price >= search_params.min_price)
+    
+    if search_params.max_price is not None:
+        query = query.filter(sqlalchemy_models.ProductDB.price <= search_params.max_price)
+    
+    # Get total count before pagination
+    total = query.count()
+    
+    # Apply ordering and pagination
+    products = query.order_by(sqlalchemy_models.ProductDB.product_id)\
+                   .offset((search_params.page - 1) * search_params.limit)\
+                   .limit(search_params.limit)\
+                   .all()
+    
+    if not products and search_params.page == 1:
         raise HTTPException(status_code=404, detail="ไม่พบสินค้า")
-    return products
+    
+    # Calculate pagination metadata
+    total_pages = (total + search_params.limit - 1) // search_params.limit
+    
+    return response_models.PaginatedResponse(
+        items=products,
+        total=total,
+        page=search_params.page,
+        limit=search_params.limit,
+        total_pages=total_pages,
+        has_next=search_params.page < total_pages,
+        has_prev=search_params.page > 1
+    )
 
 @router.get("/{product_id}", response_model=response_models.Product)
 def get_product_by_id(product_id: int, db: db_dependency):
