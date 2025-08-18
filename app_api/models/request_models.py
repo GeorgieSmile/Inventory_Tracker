@@ -77,12 +77,12 @@ class ProductSearchParams(PaginationParams):
     max_price: Optional[float] = Field(default=None, ge=0, description="Maximum price filter")
 
 class SaleSearchParams(PaginationParams):
-    search: Optional[str] = Field(default=None, description="Search in customer name or notes")
+    search: Optional[str] = Field(default=None, description="Search in notes")
     payment_method: Optional[str] = Field(default=None, description="Filter by payment method")
     start_date: Optional[str] = Field(default=None, description="Start date (YYYY-MM-DD)")
     end_date: Optional[str] = Field(default=None, description="End date (YYYY-MM-DD)")
 
 class StockInSearchParams(PaginationParams):
-    search: Optional[str] = Field(default=None, description="Search in supplier name or notes")
+    search: Optional[str] = Field(default=None, description="Search in ref no. or notes")
     start_date: Optional[str] = Field(default=None, description="Start date (YYYY-MM-DD)")
     end_date: Optional[str] = Field(default=None, description="End date (YYYY-MM-DD)")

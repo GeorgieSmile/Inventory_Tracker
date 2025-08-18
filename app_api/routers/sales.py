@@ -1,6 +1,7 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from typing import List
 from datetime import datetime
+from sqlalchemy import or_, and_
 from database import db_dependency
 from models import sqlalchemy_models, request_models, response_models
 
@@ -60,17 +61,71 @@ def create_sale(sale: request_models.SaleCreate, db: db_dependency):
     db.refresh(new_sale)
     return new_sale
 
-@router.get("/", response_model=List[response_models.Sale])
-def get_all_sales(db: db_dependency):
+@router.get("/", response_model=response_models.PaginatedResponse[response_models.Sale])
+def get_all_sales(
+    db: db_dependency,
+    search_params: request_models.SaleSearchParams = Depends()
+):
     """
-    Retrieve all sale records, ordered by the most recent.
+    Retrieve all sales with pagination and search functionality.
+    
+    - **search**: Search in notes
+    - **payment_method**: Filter by payment method (Cash, Card, QR)
+    - **start_date/end_date**: Date range filtering (YYYY-MM-DD)
+    - **page**: Page number (starts from 1)
+    - **limit**: Items per page (max 100)
     """
-    sales = db.query(sqlalchemy_models.SaleDB).order_by(
-        sqlalchemy_models.SaleDB.sale_datetime.desc()
-    ).all()
-    if not sales:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="ไม่พบรายการขาย")
-    return sales
+    # Build base query
+    query = db.query(sqlalchemy_models.SaleDB)
+    
+    # Apply search filters
+    if search_params.search:
+        search_term = f"%{search_params.search}%"
+        query = query.filter(sqlalchemy_models.SaleDB.notes.ilike(search_term))
+    
+    if search_params.payment_method:
+        query = query.filter(sqlalchemy_models.SaleDB.payment_method == search_params.payment_method)
+    
+    if search_params.start_date:
+        try:
+            start_date = datetime.strptime(search_params.start_date, "%Y-%m-%d").date()
+            query = query.filter(sqlalchemy_models.SaleDB.sale_datetime >= start_date)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="รูปแบบวันที่ไม่ถูกต้อง ใช้ YYYY-MM-DD")
+    
+    if search_params.end_date:
+        try:
+            end_date = datetime.strptime(search_params.end_date, "%Y-%m-%d").date()
+            # Add one day to include the entire end date
+            end_date = datetime.combine(end_date, datetime.max.time())
+            query = query.filter(sqlalchemy_models.SaleDB.sale_datetime <= end_date)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="รูปแบบวันที่ไม่ถูกต้อง ใช้ YYYY-MM-DD")
+    
+    # Get total count before pagination
+    total = query.count()
+    
+    # Apply ordering and pagination
+    sales = query.order_by(sqlalchemy_models.SaleDB.sale_datetime.desc())\
+                 .offset((search_params.page - 1) * search_params.limit)\
+                 .limit(search_params.limit)\
+                 .all()
+    
+    if not sales and search_params.page == 1:
+        raise HTTPException(status_code=404, detail="ไม่พบรายการขาย")
+    
+    # Calculate pagination metadata
+    total_pages = (total + search_params.limit - 1) // search_params.limit
+    
+    return response_models.PaginatedResponse(
+        items=sales,
+        total=total,
+        page=search_params.page,
+        limit=search_params.limit,
+        total_pages=total_pages,
+        has_next=search_params.page < total_pages,
+        has_prev=search_params.page > 1
+    )
 
 @router.get("/{sale_id}", response_model=response_models.Sale)
 def get_sale_by_id(sale_id: int, db: db_dependency):
