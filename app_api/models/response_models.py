@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional, Generic, TypeVar
 from datetime import datetime
 
@@ -115,3 +115,21 @@ class PaginatedResponse(BaseModel, Generic[T]):
     total_pages: int
     has_next: bool
     has_prev: bool
+
+class MostProfitableProduct(BaseModel):
+    name: str = Field(description="Product name")
+    total_profit: float = Field(ge=0, description="Sum of gross profit for this product")
+
+class ProductStockSummary(BaseModel):
+    total_products: int = Field(ge=0)
+    total_stock_value: float = Field(ge=0)
+    products_needing_restock: int = Field(ge=0)
+    restock_percentage: float = Field(ge=0, le=100)
+
+class ProfitabilitySummary(BaseModel):
+    total_sales: int = Field(ge=0)
+    total_revenue: float = Field(ge=0)
+    total_cogs: float = Field(ge=0)
+    total_gross_profit: float = Field(ge=0)
+    average_profit_margin: float = Field(ge=0, le=100)
+    most_profitable_product: Optional[MostProfitableProduct] = None

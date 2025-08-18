@@ -1,8 +1,9 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Query
 from typing import List, Optional
 from database import db_dependency
 from models import sqlalchemy_models, response_models, request_models
 from datetime import timedelta, datetime
+from sqlalchemy import or_, func
 
 router = APIRouter(
     prefix="/reports",
@@ -127,4 +128,123 @@ def get_profitability_report(
         total_pages=total_pages,
         has_next=search_params.page < total_pages,
         has_prev=search_params.page > 1
+    )
+
+@router.get("/product-stock/summary", response_model=response_models.ProductStockSummary)
+def get_product_stock_summary(
+    db: db_dependency,
+    needs_restock_only: bool = Query(False, description="Filter only products that need restocking")
+):
+    """
+    Get summary statistics for product stock report.
+    Scope follows `needs_restock_only`. Percent is computed within the same scope.
+    """
+    base_q = db.query(sqlalchemy_models.ProductStockView)
+
+    # Scope: all products or only those needing restock
+    if needs_restock_only:
+        base_q = base_q.filter(sqlalchemy_models.ProductStockView.needs_restock == 1)
+
+    # Totals within scope
+    total_products = base_q.count()
+
+    total_stock_value = (
+        base_q.with_entities(
+            func.sum(
+                sqlalchemy_models.ProductStockView.stock_on_hand
+                * sqlalchemy_models.ProductStockView.price
+            )
+        ).scalar() or 0
+    )
+
+    # Count needing restock within the same scope
+    products_needing_restock = base_q.filter(
+        sqlalchemy_models.ProductStockView.needs_restock == 1
+    ).count()
+
+    restock_percentage = round(
+        (products_needing_restock / max(total_products, 1)) * 100, 2
+    )
+
+    return response_models.ProductStockSummary(
+        total_products=total_products,
+        total_stock_value=float(total_stock_value),
+        products_needing_restock=products_needing_restock,
+        restock_percentage=restock_percentage,
+    )
+
+
+@router.get("/profitability/summary", response_model=response_models.ProfitabilitySummary)
+def get_profitability_summary(
+    db: db_dependency,
+    start_date: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
+    end_date: Optional[str] = Query(None, description="End date (YYYY-MM-DD)")
+):
+    """
+    Get summary statistics for profitability report.
+    """
+    q = db.query(sqlalchemy_models.ProfitabilityReportView)
+
+    # Apply date filters
+    if start_date:
+        try:
+            start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
+            q = q.filter(sqlalchemy_models.ProfitabilityReportView.sale_datetime >= start_date_obj)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="รูปแบบวันที่ไม่ถูกต้อง ใช้ YYYY-MM-DD")
+
+    if end_date:
+        try:
+            end_date_obj = datetime.strptime(end_date, "%Y-%m-%d").date()
+            end_date_obj = datetime.combine(end_date_obj, datetime.max.time())
+            q = q.filter(sqlalchemy_models.ProfitabilityReportView.sale_datetime <= end_date_obj)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="รูปแบบวันที่ไม่ถูกต้อง ใช้ YYYY-MM-DD")
+
+    total_sales = q.count()
+
+    if total_sales == 0:
+        return response_models.ProfitabilitySummary(
+            total_sales=0,
+            total_revenue=0.0,
+            total_cogs=0.0,
+            total_gross_profit=0.0,
+            average_profit_margin=0.0,
+            most_profitable_product=None
+        )
+
+    totals = q.with_entities(
+        func.sum(sqlalchemy_models.ProfitabilityReportView.total_revenue).label('total_revenue'),
+        func.sum(sqlalchemy_models.ProfitabilityReportView.total_cogs).label('total_cogs'),
+        func.sum(sqlalchemy_models.ProfitabilityReportView.gross_profit).label('total_gross_profit')
+    ).first()
+
+    total_revenue = float(totals.total_revenue or 0)
+    total_cogs = float(totals.total_cogs or 0)
+    total_gross_profit = float(totals.total_gross_profit or 0)
+
+    average_profit_margin = (total_gross_profit / total_revenue * 100) if total_revenue > 0 else 0.0
+
+    most_profitable = q.with_entities(
+        sqlalchemy_models.ProfitabilityReportView.product_name,
+        func.sum(sqlalchemy_models.ProfitabilityReportView.gross_profit).label('total_profit')
+    ).group_by(
+        sqlalchemy_models.ProfitabilityReportView.product_id,
+        sqlalchemy_models.ProfitabilityReportView.product_name
+    ).order_by(
+        func.sum(sqlalchemy_models.ProfitabilityReportView.gross_profit).desc()
+    ).first()
+
+    return response_models.ProfitabilitySummary(
+        total_sales=total_sales,
+        total_revenue=total_revenue,
+        total_cogs=total_cogs,
+        total_gross_profit=total_gross_profit,
+        average_profit_margin=round(average_profit_margin, 2),
+        most_profitable_product=(
+            response_models.MostProfitableProduct(
+                name=most_profitable.product_name,
+                total_profit=float(most_profitable.total_profit)
+            ) if most_profitable else None
+        )
     )
