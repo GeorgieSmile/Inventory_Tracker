@@ -94,7 +94,7 @@ class InventoryMovementDB(Base):
     
     movement_id = Column(Integer, primary_key=True, autoincrement=True)
     product_id = Column(Integer, ForeignKey("product.product_id"), nullable=False)
-    movement_type = Column(Enum('OPENING', 'STOCK_IN', 'SALE', 'ADJUSTMENT'), nullable=False)
+    movement_type = Column(Enum('OPENING', 'STOCK_IN', 'SALE'), nullable=False)
     quantity = Column(Integer, nullable=False)
     unit_cost = Column(DECIMAL(10, 2), nullable=True)
     sale_price = Column(DECIMAL(10, 2), nullable=True)

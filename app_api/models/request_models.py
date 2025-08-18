@@ -86,3 +86,9 @@ class StockInSearchParams(PaginationParams):
     search: Optional[str] = Field(default=None, description="Search in ref no. or notes")
     start_date: Optional[str] = Field(default=None, description="Start date (YYYY-MM-DD)")
     end_date: Optional[str] = Field(default=None, description="End date (YYYY-MM-DD)")
+
+class InventoryMovementSearchParams(PaginationParams):
+    product_id: Optional[int] = Field(None, description="Filter by product ID")
+    movement_type: Optional[str] = Field(None, description="Filter by movement type (OPENING, STOCK_IN, SALE)")
+    start_date: Optional[str] = Field(None, description="Start date (YYYY-MM-DD)")
+    end_date: Optional[str] = Field(None, description="End date (YYYY-MM-DD)")
