@@ -9,5 +9,7 @@ venv/
 
 # Test folder
 test_api/
-
 pytest.ini
+
+# Configuration files specific to a developer's local editor setup.
+.vscode/
