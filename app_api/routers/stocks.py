@@ -1,8 +1,9 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from typing import List
 from datetime import datetime
 from database import db_dependency
 from models import sqlalchemy_models, request_models, response_models
+from sqlalchemy import or_, and_
 
 router = APIRouter(
     prefix="/stock-in",
@@ -27,8 +28,6 @@ def create_stock_in(stock_in: request_models.StockInCreate, db: db_dependency):
     
     # Create stock_in record using request model
     stock_in_data = stock_in.model_dump(exclude={"items"})
-    if stock_in_data["stock_in_date"] is None:
-        stock_in_data["stock_in_date"] = datetime.now()
     stock_in_data["total_cost"] = 0  # Will be calculated by database trigger
     
     new_stock_in = sqlalchemy_models.StockInDB(**stock_in_data)
@@ -49,17 +48,72 @@ def create_stock_in(stock_in: request_models.StockInCreate, db: db_dependency):
     db.refresh(new_stock_in)
     return new_stock_in
 
-@router.get("/", response_model=List[response_models.StockIn])
-def get_all_stock_in(db: db_dependency):
+@router.get("/", response_model=response_models.PaginatedResponse[response_models.StockIn])
+def get_all_stock_in(
+    db: db_dependency,
+    search_params: request_models.StockInSearchParams = Depends()
+):
     """
-    Retrieve all stock in records with their items, sorted by stock in date (newest first).
+    Retrieve all stock in records with pagination and search functionality.
+    
+    - **search**: Search in ref no. or notes
+    - **start_date/end_date**: Date range filtering (YYYY-MM-DD)
+    - **page**: Page number (starts from 1)
+    - **limit**: Items per page (max 100)
     """
-    stock_ins = db.query(sqlalchemy_models.StockInDB).order_by(
-        sqlalchemy_models.StockInDB.stock_in_date.desc()
-    ).all()
-    if not stock_ins:
+    # Build base query
+    query = db.query(sqlalchemy_models.StockInDB)
+    
+    # Apply search filters
+    if search_params.search:
+        search_term = f"%{search_params.search}%"
+        query = query.filter(
+            or_(
+                sqlalchemy_models.StockInDB.ref_no.ilike(search_term),
+                sqlalchemy_models.StockInDB.notes.ilike(search_term)
+            )
+        )
+    
+    if search_params.start_date:
+        try:
+            start_date = datetime.strptime(search_params.start_date, "%Y-%m-%d").date()
+            query = query.filter(sqlalchemy_models.StockInDB.stock_in_date >= start_date)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="รูปแบบวันที่ไม่ถูกต้อง ใช้ YYYY-MM-DD")
+    
+    if search_params.end_date:
+        try:
+            end_date = datetime.strptime(search_params.end_date, "%Y-%m-%d").date()
+            # Include the entire end date
+            end_date = datetime.combine(end_date, datetime.max.time())
+            query = query.filter(sqlalchemy_models.StockInDB.stock_in_date <= end_date)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="รูปแบบวันที่ไม่ถูกต้อง ใช้ YYYY-MM-DD")
+    
+    # Get total count before pagination
+    total = query.count()
+    
+    # Apply ordering and pagination
+    stock_ins = query.order_by(sqlalchemy_models.StockInDB.stock_in_date.desc())\
+                    .offset((search_params.page - 1) * search_params.limit)\
+                    .limit(search_params.limit)\
+                    .all()
+    
+    if not stock_ins and search_params.page == 1:
         raise HTTPException(status_code=404, detail="ไม่พบรายการสินค้าเข้า")
-    return stock_ins
+    
+    # Calculate pagination metadata
+    total_pages = (total + search_params.limit - 1) // search_params.limit
+    
+    return response_models.PaginatedResponse(
+        items=stock_ins,
+        total=total,
+        page=search_params.page,
+        limit=search_params.limit,
+        total_pages=total_pages,
+        has_next=search_params.page < total_pages,
+        has_prev=search_params.page > 1
+    )
 
 @router.get("/{stock_in_id}", response_model=response_models.StockIn)
 def get_stock_in_by_id(stock_in_id: int, db: db_dependency):
