@@ -43,6 +43,9 @@ export default function CategoriesList() {
       setTotal(data.total || 0);
     } catch (e) {
       setError(e.message || "เกิดข้อผิดพลาดในการโหลดหมวดหมู่สินค้า");
+      setItems([]);
+      setTotalPages(1);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
