@@ -102,3 +102,6 @@ class ProfitabilityReportSearchParams(PaginationParams):
     product_id: Optional[int] = Field(default=None, description="Filter by specific product ID")
     start_date: Optional[str] = Field(default=None, description="Start date (YYYY-MM-DD)")
     end_date: Optional[str] = Field(default=None, description="End date (YYYY-MM-DD)")
+
+class CategorySearchParams(PaginationParams):
+    search: Optional[str] = Field(default=None, description="Search in category name")

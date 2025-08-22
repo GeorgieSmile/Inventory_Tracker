@@ -26,16 +26,46 @@ def create_category(category: request_models.CategoryCreate, db: db_dependency):
     db.refresh(new_category)
     return new_category
 
-@router.get("/", response_model=List[response_models.Category])
-def get_all_categories(db: db_dependency):
+@router.get("/", response_model=response_models.PaginatedResponse[response_models.Category])
+def get_all_categories(
+    db: db_dependency,
+    search_params: request_models.CategorySearchParams = Depends()
+):
     """
-    Retrieve all categories, sorted by ID.
+    Retrieve all categories with pagination and search functionality.
+
+    - **search**: Search in category name
+    - **page**: Page number (starts from 1)
+    - **limit**: Items per page (max 100)
     """
-    categories = db.query(sqlalchemy_models.CategoryDB).order_by(sqlalchemy_models.CategoryDB.category_id).all()
-    if not categories:
+    query = db.query(sqlalchemy_models.CategoryDB)
+
+    # Apply search filter
+    if search_params.search:
+        search_term = f"%{search_params.search}%"
+        query = query.filter(sqlalchemy_models.CategoryDB.name.ilike(search_term))
+
+    total = query.count()
+
+    categories = query.order_by(sqlalchemy_models.CategoryDB.category_id)\
+        .offset((search_params.page - 1) * search_params.limit)\
+        .limit(search_params.limit)\
+        .all()
+
+    if not categories and search_params.page == 1:
         raise HTTPException(status_code=404, detail="ไม่พบหมวดหมู่")
-    
-    return categories
+
+    total_pages = (total + search_params.limit - 1) // search_params.limit
+
+    return response_models.PaginatedResponse(
+        items=categories,
+        total=total,
+        page=search_params.page,
+        limit=search_params.limit,
+        total_pages=total_pages,
+        has_next=search_params.page < total_pages,
+        has_prev=search_params.page > 1
+    )
 
 @router.get("/{category_id}", response_model=response_models.Category)
 def get_category_by_id(category_id: int, db: db_dependency):
