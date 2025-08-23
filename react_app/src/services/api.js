@@ -66,4 +66,54 @@ export const CategoriesAPI = {
   },
 };
 
+// ================================== PRODUCTS ==================================
+
+export const ProductsAPI = {
+  /** GET /products/ */
+  list: async (params = {}) => {
+    try {
+      return await unwrap(api.get(coll(ENDPOINTS.products), { params }));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  /** GET /products/{product_id} */
+  getById: async (product_id) => {
+    try {
+      return await unwrap(api.get(item(ENDPOINTS.products, product_id)));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  /** POST /products/ */
+  create: async (payload /* { name, category_id, SKU, price, reorder_level } */) => {
+    try {
+      return await unwrap(api.post(coll(ENDPOINTS.products), payload));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  /** PATCH /products/{product_id} */
+  update: async (product_id, payload /* { name, category_id, SKU, price, reorder_level } */) => {
+    try {
+      return await unwrap(api.patch(item(ENDPOINTS.products, product_id), payload));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  /** DELETE /products/{product_id} */
+  remove: async (product_id) => {
+    try {
+      return await unwrap(api.delete(item(ENDPOINTS.products, product_id)));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+};
+
+
 export default api;
