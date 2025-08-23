@@ -14,6 +14,12 @@ def create_product(product: request_models.ProductCreate, db: db_dependency):
     """
     Create a new product.
     """
+    # If category_id is provided, check if it exists
+    if product.category_id is not None:
+        category = db.query(sqlalchemy_models.CategoryDB).filter(sqlalchemy_models.CategoryDB.category_id == product.category_id).first()
+        if not category:
+            raise HTTPException(status_code=400, detail=f"ไม่พบหมวดหมู่ ID: {product.category_id}")
+        
     # Check if SKU already exists
     if product.sku:
         existing_product = db.query(sqlalchemy_models.ProductDB).filter(sqlalchemy_models.ProductDB.sku == product.sku).first()
