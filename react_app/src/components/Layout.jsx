@@ -28,6 +28,7 @@ export default function Layout() {
               <li><NavLink to="/categories" className={linkClass}>Categories</NavLink></li>
               <li><NavLink to="/products" className={linkClass}>Products</NavLink></li>
               <li><NavLink to="/sales" className={linkClass}>Sales</NavLink></li>
+              <li><NavLink to="/stocks" className={linkClass}>Stock</NavLink></li>
             </ul>
           </nav>
         </aside>

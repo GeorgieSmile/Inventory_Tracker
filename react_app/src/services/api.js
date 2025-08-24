@@ -204,4 +204,93 @@ export const SaleItemsAPI = {
   },
 };
 
+// ================================== STOCK IN ==================================
+
+export const StocksInAPI = {
+  /** GET /stock-in/ */
+  list: async (params = {}) => {
+    try {
+      return await unwrap(api.get(coll(ENDPOINTS.stockIn), { params }));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  /** GET /stock-in/{stock_in_id} */
+  getById: async (stock_in_id) => {
+    try {
+      return await unwrap(api.get(item(ENDPOINTS.stockIn, stock_in_id)));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  /** POST /stock-in/ */
+  create: async (payload /* { stock_in_datetime, ref_no, note, items } */) => {
+    try {
+      return await unwrap(api.post(coll(ENDPOINTS.stockIn), payload));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  /** PATCH /stock-in/{stock_in_id} */
+  update: async (stock_in_id, payload /* { stock_in_datetime, ref_no,note } */) => {
+    try {
+      return await unwrap(api.patch(item(ENDPOINTS.stockIn, stock_in_id), payload));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  /** DELETE /stock-in/{stock_in_id} */
+  remove: async (stock_in_id) => {
+    try {
+      return await unwrap(api.delete(item(ENDPOINTS.stockIn, stock_in_id)));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+};
+
+// ================================== STOCK IN ITEMS==================================
+
+export const StockInItemsAPI = {
+  /** GET /stock-in/items/{stock_in_item_id} - Get Stock In Item by ID */
+  getById: async (stock_in_item_id) => {
+    try {
+      return await unwrap(api.get(`${ENDPOINTS.stockInItems}/${stock_in_item_id}`));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  /** POST /stock-in/{stock_in_id}/items - Add Stock In Item */
+  create: async (stock_in_id, payload /* { product_id, quantity, price } */) => {
+    try {
+      return await unwrap(api.post(`${ENDPOINTS.stockIn}/${stock_in_id}/items`, payload));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  /** PATCH /stock-in/{stock_in_id}/items/{item_id} - Update Stock In Item */
+  update: async (stock_in_id, item_id, payload /* { product_id, quantity, price } */) => {
+    try {
+      return await unwrap(api.patch(`${ENDPOINTS.stockIn}/${stock_in_id}/items/${item_id}`, payload));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  /** DELETE /stock-in/{stock_in_id}/items/{item_id} - Delete Stock In Item */
+  remove: async (stock_in_id, item_id) => {
+    try {
+      return await unwrap(api.delete(`${ENDPOINTS.stockIn}/${stock_in_id}/items/${item_id}`));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+};
+
 export default api;
