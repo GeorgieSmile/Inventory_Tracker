@@ -1,17 +1,6 @@
 // The base URL for all API requests.
 export const BASE_URL = import.meta.env?.VITE_API_BASE_URL || "http://localhost:8000";
 
-// ===== Frontend routes =====
-export const ROUTES = {
-  dashboard: "/",
-  categories: "/categories",
-  products: "/products",
-  sales: "/sales",
-  stockIn: "/stock-in",
-  inventory: "/inventory",
-  reports: "/reports",
-};
-
 // ===== Backend endpoints =====
 export const ENDPOINTS = {
   root: "/",
@@ -23,7 +12,7 @@ export const ENDPOINTS = {
   stockIn: "/stock-in",
   inventoryMovements: "/inventory-movements",
 
-  // Nested item lookups
+  // Direct item lookups
   salesItems: "/sales/items",           // /sales/items/{sale_item_id}
   stockInItems: "/stock-in/items",      // /stock-in/items/{stock_in_item_id}
 

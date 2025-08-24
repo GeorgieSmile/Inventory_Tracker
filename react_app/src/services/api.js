@@ -115,5 +115,93 @@ export const ProductsAPI = {
   },
 };
 
+// ================================== SALES ==================================
+
+export const SalesAPI = {
+  /** GET /sales/ */
+  list: async (params = {}) => {
+    try {
+      return await unwrap(api.get(coll(ENDPOINTS.sales), { params }));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  /** GET /sales/{sale_id} */
+  getById: async (sale_id) => {
+    try {
+      return await unwrap(api.get(item(ENDPOINTS.sales, sale_id)));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  /** POST /sales/ */
+  create: async (payload /* { sale_datetime, payment_method, note, items } */) => {
+    try {
+      return await unwrap(api.post(coll(ENDPOINTS.sales), payload));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  /** PATCH /sales/{sale_id} */
+  update: async (sale_id, payload /* { sale_datetime, payment_method, note } */) => {
+    try {
+      return await unwrap(api.patch(item(ENDPOINTS.sales, sale_id), payload));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  /** DELETE /sales/{sale_id} */
+  remove: async (sale_id) => {
+    try {
+      return await unwrap(api.delete(item(ENDPOINTS.sales, sale_id)));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+};
+
+// ================================== SALE ITEMS ==================================
+
+export const SaleItemsAPI = {
+  /** GET /sales/items/{sale_item_id} - Get Sale Item by ID */
+  getById: async (sale_item_id) => {
+    try {
+      return await unwrap(api.get(`${ENDPOINTS.salesItems}/${sale_item_id}`));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  /** POST /sales/{sale_id}/items - Add Sale Item */
+  create: async (sale_id, payload /* { product_id, quantity, price } */) => {
+    try {
+      return await unwrap(api.post(`${ENDPOINTS.sales}/${sale_id}/items`, payload));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  /** PATCH /sales/{sale_id}/items/{item_id} - Update Sale Item */
+  update: async (sale_id, item_id, payload /* { product_id, quantity, price } */) => {
+    try {
+      return await unwrap(api.patch(`${ENDPOINTS.sales}/${sale_id}/items/${item_id}`, payload));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  /** DELETE /sales/{sale_id}/items/{item_id} - Delete Sale Item */
+  remove: async (sale_id, item_id) => {
+    try {
+      return await unwrap(api.delete(`${ENDPOINTS.sales}/${sale_id}/items/${item_id}`));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+};
 
 export default api;
