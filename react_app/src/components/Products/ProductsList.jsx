@@ -55,6 +55,9 @@ export default function ProductsList() {
             setTotal(data.total || 0);
         } catch (e) {
             setError(e.message || "โหลดสินค้าล้มเหลว");
+            setProducts([]);
+            setTotalPages(1);
+            setTotal(0);
         }
         setLoading(false);
     };
