@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import api, { SalesAPI, SaleItemsAPI } from "../../services/api";
+import { SalesAPI, SaleItemsAPI } from "../../services/api";
 import SaleItem from "./SaleItem";
 import SaleItemForm from "./SaleItemForm";
 import LoadingSpinner from "../LoadingSpinner";
@@ -144,7 +144,7 @@ export default function SaleItemsList() {
           </div>
           {sale.notes && (
             <div className="md:col-span-3">
-              <span className="text-gray-500">หมายเหตุ: </span>
+              <span className="text-gray-500">โน้ตเพิ่มเติม: </span>
               <span className="font-medium">{sale.notes}</span>
             </div>
           )}
