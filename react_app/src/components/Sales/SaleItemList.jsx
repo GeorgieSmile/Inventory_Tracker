@@ -6,7 +6,7 @@ import SaleItemForm from "./SaleItemForm";
 import LoadingSpinner from "../LoadingSpinner";
 import ErrorMessage from "../ErrorMessage";
 
-export default function SaleItemsPage() {
+export default function SaleItemsList() {
   const { saleId } = useParams();
   const navigate = useNavigate();
 
