@@ -3,8 +3,19 @@ import { ProductsAPI } from '../../services/api';
 import ErrorMessage from '../ErrorMessage';
 
 export default function StockForm({ onSubmit, onCancel, initialData = {}, mode = 'create' }) {
+    const getCurrentDateTimeLocalString = () => {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0'); 
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
+    
     const [form, setForm] = useState({
-        stock_in_date: initialData.stock_in_date || new Date().toISOString().slice(0, 16),
+        stock_in_date: initialData.stock_in_date || getCurrentDateTimeLocalString(),
         ref_no: initialData.ref_no || '',
         notes: initialData.notes || '',
         items: initialData.items || [] 

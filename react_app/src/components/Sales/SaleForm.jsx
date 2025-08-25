@@ -3,7 +3,18 @@ import { ProductsAPI } from '../../services/api';
 import ErrorMessage from '../ErrorMessage';
 
 export default function SaleForm({ onSubmit, onCancel, initialData = {}, mode = 'create' }) {
+    const getCurrentDateTimeLocalString = () => {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0'); 
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
     const [form, setForm] = useState({
+        sale_datetime: initialData.sale_datetime || getCurrentDateTimeLocalString(),
         payment_method: initialData.payment_method || 'Cash',
         notes: initialData.notes || '',
         items: []
@@ -80,6 +91,7 @@ export default function SaleForm({ onSubmit, onCancel, initialData = {}, mode = 
 
         try {
             const payload = {
+                sale_datetime: form.sale_datetime,
                 payment_method: form.payment_method,
                 notes: form.notes || null,
                 items: form.items
@@ -109,25 +121,38 @@ export default function SaleForm({ onSubmit, onCancel, initialData = {}, mode = 
                 {error && <ErrorMessage message={error} />}
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                    {/* Sale Information */}
-                    <div>
-                        <label className="block mb-1 font-medium">วิธีการชำระเงิน</label>
-                        <select
-                            name="payment_method"
-                            value={form.payment_method}
-                            onChange={handleChange}
-                            className="w-full border rounded px-3 py-2"
-                            required
-                            disabled={loading}
-                        >
-                            <option value="Cash">เงินสด</option>
-                            <option value="Card">บัตรเครดิต</option>
-                            <option value="QR">QR Code</option>
-                        </select>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block mb-1 font-medium">วันที่ขาย</label>
+                            <input
+                                type="datetime-local"
+                                name="sale_datetime"
+                                value={form.sale_datetime}
+                                onChange={handleChange}
+                                className="w-full border rounded px-3 py-2"
+                                required
+                                disabled={loading}
+                            />
+                        </div>
+                        <div>
+                            <label className="block mb-1 font-medium">วิธีการชำระเงิน</label>
+                            <select
+                                name="payment_method"
+                                value={form.payment_method}
+                                onChange={handleChange}
+                                className="w-full border rounded px-3 py-2"
+                                required
+                                disabled={loading}
+                            >
+                                <option value="Cash">เงินสด</option>
+                                <option value="Card">บัตรเครดิต</option>
+                                <option value="QR">QR Code</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div>
-                        <label className="block mb-1 font-medium">หมายเหตุ <span className="text-gray-400">(ไม่บังคับ)</span></label>
+                        <label className="block mb-1 font-medium">โน้ตเพิ่มเติม <span className="text-gray-400">(ไม่บังคับ)</span></label>
                         <input
                             type="text"
                             name="notes"
