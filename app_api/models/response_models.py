@@ -132,4 +132,4 @@ class ProfitabilitySummary(BaseModel):
     total_cogs: float = Field(ge=0)
     total_gross_profit: float = Field(ge=0)
     average_profit_margin: float = Field(ge=0, le=100)
-    most_profitable_product: Optional[MostProfitableProduct] = None
+    top_profitable_products: Optional[List[MostProfitableProduct]] = None

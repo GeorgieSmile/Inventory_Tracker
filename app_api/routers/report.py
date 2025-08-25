@@ -225,7 +225,7 @@ def get_profitability_summary(
 
     average_profit_margin = (total_gross_profit / total_revenue * 100) if total_revenue > 0 else 0.0
 
-    most_profitable = q.with_entities(
+    top_products_query = q.with_entities(
         sqlalchemy_models.ProfitabilityReportView.product_name,
         func.sum(sqlalchemy_models.ProfitabilityReportView.gross_profit).label('total_profit')
     ).group_by(
@@ -233,7 +233,17 @@ def get_profitability_summary(
         sqlalchemy_models.ProfitabilityReportView.product_name
     ).order_by(
         func.sum(sqlalchemy_models.ProfitabilityReportView.gross_profit).desc()
-    ).first()
+    ).limit(3).all()
+
+    # Create a list of Pydantic models from the query result
+    top_profitable_products_list = []
+    for product in top_products_query:
+        top_profitable_products_list.append(
+            response_models.MostProfitableProduct(
+                name=product.product_name,
+                total_profit=float(product.total_profit)
+            )
+        )
 
     return response_models.ProfitabilitySummary(
         total_sales=total_sales,
@@ -241,10 +251,5 @@ def get_profitability_summary(
         total_cogs=total_cogs,
         total_gross_profit=total_gross_profit,
         average_profit_margin=round(average_profit_margin, 2),
-        most_profitable_product=(
-            response_models.MostProfitableProduct(
-                name=most_profitable.product_name,
-                total_profit=float(most_profitable.total_profit)
-            ) if most_profitable else None
-        )
+        top_profitable_products=top_profitable_products_list
     )
