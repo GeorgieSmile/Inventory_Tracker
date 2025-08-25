@@ -14,7 +14,7 @@ export default function ProductCard({ product, onDelete, onEdit }) {
                 <p className="text-gray-700">หมวดหมู่สินค้า: <span className="font-medium">{categoryText}</span></p>
                 <p className="text-gray-700">ราคา: <span className="font-medium">{product.price} บาท</span></p>
                 <p className="text-gray-700">SKU: <span className="font-medium">{product.sku || ""}</span></p>
-                <p className="text-gray-700">จำนวนขั้นต่ำของสินค้า: <span className="font-medium">{product.reorder_level}</span></p>
+                <p className="text-gray-700">จุดสั่งซื้อ: <span className="font-medium">{product.reorder_level}</span></p>
             </div>
             <div className="flex gap-2 mt-2">
                 <button
