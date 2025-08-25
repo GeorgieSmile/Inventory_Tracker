@@ -293,4 +293,69 @@ export const StockInItemsAPI = {
   },
 };
 
+// ================================== INVENTORY MOVEMENTS ==================================
+
+export const InventoryMovementsAPI = {
+  /** GET /inventory-movements/ */
+  list: async (params = {}) => {
+    try {
+      return await unwrap(api.get(coll(ENDPOINTS.inventoryMovements), { params }));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  /** GET /inventory-movements/{movement_id} */
+  getById: async (movement_id) => {
+    try {
+      return await unwrap(api.get(item(ENDPOINTS.inventoryMovements, movement_id)));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+};
+
+// ================================== REPORTS ==================================
+
+export const ReportsAPI = {
+
+  /** GET reports/product-stock */
+  getProductStock: async (params = {}) => {
+    try {
+      return await unwrap(api.get(ENDPOINTS.reports.productStock, { params }));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  /** GET reports/profitability */
+  getProfitability: async (params = {}) => {
+    try {
+      return await unwrap(api.get(ENDPOINTS.reports.profitability, { params }));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  /** GET reports/product-stock/summary */
+  getProductStockSummary: async (params = {}) => {
+    try {
+      return await unwrap(api.get(ENDPOINTS.reports.productStockSummary, { params }));
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  /** GET reports/profitability/summary */
+  getProfitabilitySummary: async (params = {}) => {
+    try {
+      return await unwrap(api.get(ENDPOINTS.reports.profitabilitySummary, { params }));
+    } catch (e) {
+      handleError(e);
+    }
+  }
+
+}
+
 export default api;

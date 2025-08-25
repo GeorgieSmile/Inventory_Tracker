@@ -1,7 +1,7 @@
 export default function CategoryItem({ category, onDelete, onEdit }) {
   return (
     <div className="flex items-center justify-between rounded-xl border px-3 py-2">
-      <span className="flex-1 text-sm truncate">{category.name}</span>
+      <span className="flex-1 text-sm truncate">{category.name} #{category.category_id}</span>
       <div className="flex gap-2 ml-2">
           <button
             onClick={() => onEdit(category.category_id)}

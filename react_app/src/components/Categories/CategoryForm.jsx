@@ -15,7 +15,7 @@ export default function CategoryForm({ onCreate, pending = false }) {
     <form onSubmit={submit} className="flex items-center gap-2">
       <input
         className="flex-1 rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-600"
-        placeholder="New category name"
+        placeholder="ขื่อหมวดหมู่ใหม่"
         value={name}
         onChange={(e) => setName(e.target.value)}
         disabled={pending}

@@ -24,11 +24,12 @@ export default function Layout() {
         <aside className="col-span-12 md:col-span-3 lg:col-span-2">
           <nav className="rounded-xl border bg-white p-3">
             <ul className="space-y-2">
-              <li><NavLink to="/" className={linkClass}>Dashboard</NavLink></li>
-              <li><NavLink to="/categories" className={linkClass}>Categories</NavLink></li>
-              <li><NavLink to="/products" className={linkClass}>Products</NavLink></li>
-              <li><NavLink to="/sales" className={linkClass}>Sales</NavLink></li>
-              <li><NavLink to="/stocks" className={linkClass}>Stock</NavLink></li>
+              <li><NavLink to="/" className={linkClass}>หน้าหลัก</NavLink></li>
+              <li><NavLink to="/categories" className={linkClass}>หมวดหมู่</NavLink></li>
+              <li><NavLink to="/products" className={linkClass}>สินค้า</NavLink></li>
+              <li><NavLink to="/sales" className={linkClass}>การขาย</NavLink></li>
+              <li><NavLink to="/stocks" className={linkClass}>สต๊อกสินค้า</NavLink></li>
+              <li><NavLink to="/inventory-movements" className={linkClass}>การเคลื่อนไหวของสินค้า</NavLink></li>
             </ul>
           </nav>
         </aside>
