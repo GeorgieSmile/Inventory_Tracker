@@ -108,18 +108,21 @@ CREATE OR REPLACE VIEW v_product_stock AS
 SELECT 
     p.product_id,
     p.name,
-    p.sku,
     p.price,
     p.reorder_level,
     c.name AS category_name,
-    COALESCE(SUM(im.quantity), 0) AS current_stock
+    COALESCE(SUM(im.quantity), 0) AS stock_on_hand,
+    CASE 
+        WHEN COALESCE(SUM(im.quantity), 0) <= p.reorder_level 
+        THEN 1 ELSE 0 
+    END AS needs_restock
 FROM product p
 LEFT JOIN category c ON p.category_id = c.category_id
 LEFT JOIN inventory_movement im ON p.product_id = im.product_id
-GROUP BY p.product_id, p.name, p.sku, p.price, c.name, p.reorder_level;
+GROUP BY p.product_id, p.name, p.price, p.reorder_level, c.name;
 
 -- View for calculating profitability of each sale item
-CREATE OR REPLACE VIEW v_profitability AS
+CREATE OR REPLACE VIEW v_profitability_report AS
 SELECT 
     si.sale_item_id,
     s.sale_id,
