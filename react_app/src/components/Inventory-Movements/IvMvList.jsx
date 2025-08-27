@@ -26,12 +26,17 @@ export default function IvMvList() {
                 page,
                 limit,
             };
-            if (search) params.search = search;
+            if (search) params.product_id = search;
             if (movementType) params.movement_type = movementType;
             if (startDate) params.start_date = startDate;
             if (endDate) params.end_date = endDate;
 
+            console.log('API call params:', params); // Debug log to see what's being sent
+
             const data = await InventoryMovementsAPI.list(params);
+            
+            console.log('API response:', data); // Debug log to see what's returned
+            
             setMovements(data?.items || data || []);
             setTotalPages(data.total_pages || 1);
             setTotal(data.total || 0);
@@ -48,7 +53,7 @@ export default function IvMvList() {
     useEffect(() => {
         const handler = setTimeout(() => {
             setPage(1);
-            fetchMovements({ search, page: 1 });
+            fetchMovements();
         }, 400);
 
         return () => clearTimeout(handler);
